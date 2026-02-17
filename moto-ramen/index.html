@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOTO-GACHA: RAMEN JACKPOT</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Fjalla+One&family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="gacha-machine">
+    <div class="lights-top">
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+    </div>
+
+    <header>
+        <h1 class="game-title">🍜 ライダーの<br>ラーメンガチャ 🏍️</h1>
+        <div class="sub-title">TODAY'S DESTINATION</div>
+    </header>
+
+    <div class="display-window">
+        <div class="reel-container">
+            <div id="reel-text" class="reel-text">PRESS START</div>
+        </div>
+        
+        <div id="result-overlay" class="result-overlay">
+            
+            <div class="shop-name-big" id="res-name">店名</div>
+            
+            <div class="info-pill-container">
+                <span class="info-pill" id="res-area">エリア</span>
+                <span class="info-pill time" id="res-time">時間</span>
+            </div>
+            
+            <p class="shop-comment" id="res-desc">コメント</p>
+            
+            <a id="btn-open-map" href="#" target="_blank" class="map-btn">
+                🗺️ GoogleマップでGO! 
+            </a>
+            
+                    </div>
+    </div>
+
+    <div class="control-deck">
+        <div class="settings-row">
+            <div class="setting-box">
+                <label>現在地</label>
+                <div class="toggle-switch">
+                    <input type="radio" name="loc" id="gps" checked onclick="setLoc('GPS')">
+                    <label for="gps">GPS</label>
+                    <input type="radio" name="loc" id="manual" onclick="setLoc('MANUAL')">
+                    <label for="manual">東京</label>
+                </div>
+            </div>
+            <div class="setting-box">
+                <label>距離</label>
+                <div class="toggle-switch dist-switch">
+                    <input type="radio" name="rng" id="short" checked onclick="setRng('SHORT')">
+                    <label for="short">近場</label>
+                    <input type="radio" name="rng" id="long" onclick="setRng('LONG')">
+                    <label for="long">遠出</label>
+                </div>
+            </div>
+        </div>
+
+        <button class="spin-button" onclick="spinGacha()">
+            <span class="spin-text">SPIN!</span>
+            <span class="spin-sub">回せ！！</span>
+        </button>
+    </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
