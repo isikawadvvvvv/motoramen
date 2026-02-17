@@ -5,17 +5,186 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOTO-GACHA: RAMEN JACKPOT</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Fjalla+One&family=Mochiy+Pop+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* --- CSS (デザイン) --- */
+        :root {
+            --pop-yellow: #ffde00;
+            --pop-pink: #ff00cc;
+            --pop-cyan: #00ffff;
+            --dark-bg: #1a1025;
+            --machine-bg: #2d2d2d;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #fff;
+            font-family: 'Mochiy Pop One', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overscroll-behavior: none;
+            background-image: repeating-conic-gradient(from 0deg, #1a1025 0deg 20deg, #251835 20deg 40deg);
+        }
+
+        .gacha-machine {
+            width: 95%;
+            max-width: 450px;
+            background: var(--machine-bg);
+            border: 6px solid var(--pop-yellow);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 0 50px rgba(255, 222, 0, 0.3);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .lights-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .light {
+            width: 12px; height: 12px;
+            background: #555;
+            border-radius: 50%;
+            animation: flash 1s infinite alternate;
+        }
+        .light:nth-child(1) { background: #f00; animation-delay: 0s; }
+        .light:nth-child(2) { background: #ff0; animation-delay: 0.2s; }
+        .light:nth-child(3) { background: #0f0; animation-delay: 0.4s; }
+        .light:nth-child(4) { background: #00f; animation-delay: 0.6s; }
+        @keyframes flash { from { opacity: 0.3; } to { opacity: 1; box-shadow: 0 0 10px #fff; } }
+
+        header { text-align: center; margin-bottom: 15px; }
+        .game-title {
+            margin: 0; font-size: 1.5rem; color: var(--pop-yellow);
+            text-shadow: 3px 3px 0 #000;
+        }
+        .sub-title { font-size: 0.6rem; color: #aaa; font-family: 'DotGothic16', sans-serif; letter-spacing: 2px; }
+
+        .display-window {
+            background: #000;
+            height: 320px;
+            border-radius: 10px;
+            border: 4px solid #444;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .reel-text {
+            font-size: 2rem; color: #fff; font-family: 'DotGothic16', sans-serif; text-align: center; white-space: nowrap;
+        }
+
+        /* 結果オーバーレイ */
+        .result-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a1025, #4a1035);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto; 
+            z-index: 100;
+        }
+        /* スクロールバー */
+        .result-overlay::-webkit-scrollbar { width: 6px; }
+        .result-overlay::-webkit-scrollbar-thumb { background: var(--pop-yellow); border-radius: 3px; }
+
+        .result-overlay.show {
+            display: flex;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .rank-badge {
+            flex-shrink: 0;
+            background: var(--pop-yellow); color: #000; font-size: 1.2rem; font-weight: bold;
+            padding: 3px 15px; transform: rotate(-5deg); box-shadow: 4px 4px 0 var(--pop-pink);
+            margin-bottom: 10px; border: 2px solid #000;
+        }
+
+        .shop-name-big {
+            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            color: #fff; text-align: center; line-height: 1.3; margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--pop-cyan); word-break: break-all;
+        }
+
+        .info-pill-container { 
+            display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; flex-shrink: 0;
+        }
+        .info-pill {
+            background: #333; color: #fff; padding: 4px 10px; border-radius: 15px; font-size: 0.7rem; font-family: 'DotGothic16'; white-space: nowrap;
+        }
+        .info-pill.time { background: var(--pop-pink); color: #fff; }
+
+        .shop-comment {
+            font-size: 0.8rem; color: #ddd; text-align: center; margin-bottom: 15px;
+            background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; width: 100%;
+            line-height: 1.5; box-sizing: border-box;
+        }
+
+        .map-btn {
+            flex-shrink: 0;
+            background: var(--pop-cyan); color: #000; text-decoration: none; font-weight: bold;
+            padding: 12px 0; border-radius: 30px; border: 3px solid #000; box-shadow: 0 4px 0 #009999;
+            transition: 0.1s; width: 90%; text-align: center; display: block; margin-bottom: 10px; font-size: 1rem;
+        }
+        .map-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        .close-btn {
+            flex-shrink: 0;
+            background: transparent; border: none; color: #aaa; margin-bottom: 10px; cursor: pointer;
+            text-decoration: underline; font-size: 0.8rem; padding: 10px;
+        }
+
+        .control-deck { background: #222; padding: 10px; border-radius: 10px; }
+        .settings-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .setting-box { flex: 1; background: #111; padding: 8px; border-radius: 8px; border: 1px solid #333; }
+        .setting-box label { display: block; font-size: 0.6rem; color: #888; margin-bottom: 4px; text-align: center; }
+
+        .toggle-switch { display: flex; background: #333; border-radius: 5px; padding: 2px; }
+        .toggle-switch input { display: none; }
+        .toggle-switch label {
+            flex: 1; text-align: center; padding: 6px 0; font-size: 0.7rem; cursor: pointer; color: #888; border-radius: 4px; transition: 0.2s; white-space: nowrap;
+        }
+        .toggle-switch input:checked + label { background: var(--pop-yellow); color: #000; font-weight: bold; }
+        .dist-switch input:checked + label { background: var(--pop-pink); color: #fff; }
+
+        .spin-button {
+            width: 100%;
+            background: linear-gradient(to bottom, #ff5e00, #ff0000);
+            border: none; border-radius: 15px; padding: 12px; cursor: pointer;
+            box-shadow: 0 6px 0 #990000, 0 10px 20px rgba(255,0,0,0.4);
+            position: relative; overflow: hidden;
+        }
+        .spin-button:active { transform: translateY(6px); box-shadow: none; }
+        .spin-button::after {
+            content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(skewX(-20deg), transparent, rgba(255,255,255,0.4), transparent);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+        .spin-text { display: block; font-size: 1.8rem; color: #fff; font-family: 'Fjalla One', sans-serif; text-shadow: 2px 2px 0 #000; }
+        .spin-sub { display: block; font-size: 0.7rem; color: #ffcccc; font-weight: bold; }
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+    </style>
 </head>
 <body>
 
 <div class="gacha-machine">
-    <div class="lights-top">
-        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
-    </div>
+    <div class="lights-top"><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div></div>
 
     <header>
-        <h1 class="game-title">🍜 ライダーの<br>ラーメンガチャ 🏍️</h1>
+        <h1 class="game-title">🍜 ラーメンガチャ 🏍️</h1>
         <div class="sub-title">TODAY'S DESTINATION</div>
     </header>
 
@@ -25,7 +194,7 @@
         </div>
         
         <div id="result-overlay" class="result-overlay">
-            
+            <div class="rank-badge" id="res-rank">SSR</div>
             <div class="shop-name-big" id="res-name">店名</div>
             
             <div class="info-pill-container">
@@ -36,10 +205,11 @@
             <p class="shop-comment" id="res-desc">コメント</p>
             
             <a id="btn-open-map" href="#" target="_blank" class="map-btn">
-                🗺️ GoogleマップでGO! 
+                🗺️ 地図アプリでGO! 
             </a>
             
-                    </div>
+            <button class="close-btn" onclick="resetGacha()">もう一回まわす</button>
+        </div>
     </div>
 
     <div class="control-deck">
@@ -66,13 +236,150 @@
 
         <button class="spin-button" onclick="spinGacha()">
             <span class="spin-text">SPIN!</span>
-            <span class="spin-sub">回せ！！</span>
+            <span class="spin-sub">運命を回せ</span>
         </button>
     </div>
 </div>
 
-<script src="js/data.js"></script>
-<script src="js/app.js"></script>
+<script>
+    /* --- DATA (データベース) --- */
+    const ramenSpots = [
+        // TOKYO
+        { id: "t01", name: "ホープ軒 千駄ヶ谷", lat: 35.6791, lng: 139.7136, region: "TOKYO", parking: "路駐多め", tags: ["CITY"], desc: "【24h営業】黄色い看板は深夜の灯台。国立競技場を望むナイトランの聖地。" },
+        { id: "t02", name: "ラーメン二郎 三田本店", lat: 35.6481, lng: 139.7416, region: "TOKYO", parking: "近隣CP", tags: ["LEGEND"], desc: "【総本山】東京タワーを見ながら走るR1ルート。全ての二郎の原点。" },
+        { id: "t03", name: "のんきや (奥多摩)", lat: 35.7905, lng: 139.0505, region: "TOKYO", parking: "店前広場", tags: ["WINDING"], desc: "【峠飯】奥多摩周遊道路を攻めた後の休憩ポイント。手打ち麺と湖の絶景。" },
+        { id: "t04", name: "らーめん弁慶 堀切店", lat: 35.7483, lng: 139.8252, region: "TOKYO", parking: "1F駐車場", tags: ["CITY"], desc: "【背脂】荒川・綾瀬川沿いの快走路。下町ライダーのガソリンスタンド。" },
+        { id: "t05", name: "ラーメンショップ 椿 (新小金井)", lat: 35.6925, lng: 139.5032, region: "TOKYO", parking: "Pあり", tags: ["GARLIC"], desc: "【街道沿い】多摩ライダーに愛されるラーショ。ニンニクを入れてナイトランへ。" },
+        // CHIBA
+        { id: "c01", name: "梅乃家 (竹岡式)", lat: 35.2158, lng: 139.8285, region: "CHIBA", parking: "路肩/空地", tags: ["COASTAL"], desc: "【海沿い】R127内房なぎさライン。チャーシューの煮汁割スープが染みる。" },
+        { id: "c02", name: "アリランラーメン 八平", lat: 35.4055, lng: 140.1764, region: "CHIBA", parking: "専用P", tags: ["WINDING"], desc: "【秘境】Googleマップ必須の峠越えルート。玉ねぎとニンニクのスタミナ系。" },
+        { id: "c03", name: "一山いけす (海鮮)", lat: 35.6985, lng: 140.8544, region: "CHIBA", parking: "大型P", tags: ["COASTAL"], desc: "【太平洋】九十九里ビーチラインの北端。伊勢海老ラーメンを目指すロングラン。" },
+        { id: "c04", name: "なりたけ 津田沼店", lat: 35.6917, lng: 140.0206, region: "CHIBA", parking: "近隣CP", tags: ["CITY"], desc: "【背脂】千葉ライダーのソウルフード。R14/R296でのナイトラン向け。" },
+        // SAITAMA
+        { id: "s01", name: "秩父 珍達そば", lat: 35.9972, lng: 139.0845, region: "SAITAMA", parking: "店前P", tags: ["WINDING"], desc: "【R299】正丸トンネルを抜けた先のゴール地点。ネギたっぷりの一杯。" },
+        { id: "s02", name: "大滝食堂 (バイク弁当)", lat: 35.9525, lng: 138.9328, region: "SAITAMA", parking: "バイクP", tags: ["MECCA"], desc: "【聖地】タンク型容器の弁当。彩甲斐街道のワインディングを楽しめる。" },
+        { id: "s04", name: "中華そば 四つ葉", lat: 35.9752, lng: 139.4755, region: "SAITAMA", parking: "超大型P", tags: ["RURAL"], desc: "【孤高の名店】車かバイクでしか行けない立地だが日本トップクラスの人気。" },
+        // KANAGAWA
+        { id: "k01", name: "飯田商店", lat: 35.1436, lng: 139.1065, region: "KANAGAWA", parking: "予約制/P", tags: ["COASTAL"], desc: "【西湘BP】海沿いの快走路を抜けた先にある至高の店。完全予約制。" },
+        { id: "k02", name: "吉村家 (総本山)", lat: 35.4655, lng: 139.6163, region: "KANAGAWA", parking: "近隣CP", tags: ["LEGEND"], desc: "【横浜】第三京浜や首都高横羽線からのアクセス。家系の原点。" },
+        { id: "k04", name: "ZUND-BAR", lat: 35.4452, lng: 139.2905, region: "KANAGAWA", parking: "専用P", tags: ["WINDING"], desc: "【丹沢】AFURIの総本店。山奥にあるお洒落な店。宮ヶ瀬ダムへ抜けるルート。" },
+        // IBARAKI
+        { id: "ib01", name: "ラーショ 牛久結束店", lat: 35.9660, lng: 140.1655, region: "IBARAKI", parking: "砂利P大", tags: ["LEGEND"], desc: "【日本一】全国のラーメンショップの中で最高評価を得る伝説店。" },
+        // GUNMA
+        { id: "gm03", name: "永井食堂 (もつ煮)", lat: 36.5458, lng: 139.0225, region: "GUNMA", parking: "大型P", tags: ["MECCA"], desc: "【聖地】ラーメンではないが群馬ツーリングといえばココ。R17三国峠の手前。" },
+    ];
+
+    /* --- APP LOGIC (ロジック) --- */
+    let systemState = {
+        locationMode: 'GPS', 
+        rangeMode: 'SHORT',
+        userPos: null,
+        isSpinning: false
+    };
+
+    const BASE_POS = { lat: 35.6812, lng: 139.7671 };
+
+    function setLoc(mode) {
+        systemState.locationMode = mode;
+        if(mode === 'GPS') {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => { systemState.userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude }; },
+                (err) => { alert("GPS失敗！マニュアルモードにします"); document.getElementById('manual').checked = true; setLoc('MANUAL'); }
+            );
+        }
+    }
+
+    function setRng(mode) { systemState.rangeMode = mode; }
+
+    function getDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function spinGacha() {
+        if(systemState.isSpinning) return;
+
+        let startPos = systemState.userPos;
+        if (systemState.locationMode === 'MANUAL') startPos = BASE_POS;
+        else if (!startPos) {
+            alert("GPS探索中...もう一度押してね");
+            setLoc('GPS');
+            return;
+        }
+
+        const candidates = ramenSpots.map(shop => {
+            return { ...shop, dist: getDistance(startPos.lat, startPos.lng, shop.lat, shop.lng) };
+        }).filter(shop => {
+            if (systemState.rangeMode === 'SHORT') return shop.dist <= 35;
+            return shop.dist > 35;
+        });
+
+        if (candidates.length === 0) {
+            alert("この範囲にお店がない！設定を変えてみて！");
+            return;
+        }
+
+        systemState.isSpinning = true;
+        document.getElementById('result-overlay').classList.remove('show');
+        
+        const reel = document.getElementById('reel-text');
+        const display = document.querySelector('.display-window');
+        display.classList.add('shake');
+        
+        let count = 0;
+        const maxCount = 20; 
+        const interval = setInterval(() => {
+            const randomName = ramenSpots[Math.floor(Math.random() * ramenSpots.length)].name;
+            reel.innerText = randomName;
+            reel.style.color = count % 2 === 0 ? '#ffde00' : '#fff';
+            
+            count++;
+            if (count > maxCount) {
+                clearInterval(interval);
+                display.classList.remove('shake');
+                const winner = candidates[Math.floor(Math.random() * candidates.length)];
+                showResult(winner);
+                systemState.isSpinning = false;
+            }
+        }, 100);
+    }
+
+    function showResult(shop) {
+        const overlay = document.getElementById('result-overlay');
+        
+        document.getElementById('res-name').innerText = shop.name;
+        document.getElementById('res-area').innerText = shop.region;
+        document.getElementById('res-desc').innerText = shop.desc;
+        
+        const timeEst = Math.round(shop.dist / 30 * 60);
+        const timeText = timeEst > 60 ? Math.floor(timeEst/60) + "時間" + (timeEst%60) + "分" : timeEst + "分";
+        document.getElementById('res-time').innerText = "片道 " + timeText;
+
+        const rank = document.getElementById('res-rank');
+        if(shop.dist > 100) { rank.innerText = "UR"; rank.style.background = "linear-gradient(45deg, #ffd700, #fff)"; }
+        else if(shop.dist > 50) { rank.innerText = "SSR"; rank.style.background = "#ff00cc"; }
+        else { rank.innerText = "SR"; rank.style.background = "#00ffff"; }
+
+        const mapBtn = document.getElementById('btn-open-map');
+        mapBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name + " " + shop.region)}`;
+
+        overlay.classList.add('show');
+    }
+
+    function resetGacha() {
+        document.getElementById('result-overlay').classList.remove('show');
+        document.getElementById('reel-text').innerText = "PRESS START";
+    }
+
+    window.onload = function() {
+        setLoc('GPS');
+    };
+</script>
 
 </body>
 </html>
